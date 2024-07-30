@@ -1,4 +1,4 @@
-name: DXF Export
+name: Export files
 
 on:
   [push]
@@ -20,25 +20,33 @@ jobs:
       - name: Run FreeCAD
         run: |
             mkdir /tmp/mirte-frame
-            cp -r ./freecadFiles/* /tmp/mirte-frame
-            cp -r ./scripts/generate.py /tmp/mirte-frame
-            echo "exec(open(\"/tmp/mirte-frame/generate.py\").read())" | freecadcmd
+            cp -r ./freecadFiles /tmp/mirte-frame
+            cp -r ./scripts /tmp/mirte-frame
+            cp ./bill_of_materials.md /tmp/mirte-frame
+            cd /tmp/mirte-frame/scripts
+            echo "exec(open(\"/tmp/mirte-frame/scripts/generate.py\").read())" | freecadcmd
       - name: Upload DXF
         uses: actions/upload-artifact@v4
         with:
           name: dxfs
-          path: /tmp/mirte-frame/*.dxf
+          path: /tmp/mirte-frame/build/dxf/*
       - name: Upload STL
         uses: actions/upload-artifact@v4
         with:
           name: stls
-          path: /tmp/mirte-frame/*.stl
+          path: /tmp/mirte-frame/build/stl/*
+      - name: Upload STEP
+        uses: actions/upload-artifact@v4
+        with:
+          name: steps
+          path: /tmp/mirte-frame/build/step/*
       - name: zip files
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          cd /tmp/mirte-frame
-          zip -r /tmp/mirte-frame-stl.zip ./*.stl
-          zip -r /tmp/mirte-frame-dxf.zip ./*.dxf
+          cd /tmp/mirte-frame/build
+          zip -r /tmp/mirte-frame-stl.zip ./stl/*
+          zip -r /tmp/mirte-frame-dxf.zip ./dxf/*
+          zip -r /tmp/mirte-frame-step.zip ./step/*
       - name: Push to release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
@@ -46,4 +54,6 @@ jobs:
             files: |
               /tmp/mirte-frame-dxf.zip
               /tmp/mirte-frame-stl.zip
+              /tmp/mirte-frame-step.zip
+              /tmp/mirte-frame/bill_of_materials.md
 

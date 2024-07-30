@@ -7,3 +7,5 @@
 *.log
 *.SLDDRW
 *.FCBak
+*.FCStd1
+build/
