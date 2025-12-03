@@ -1,3 +1,5 @@
 # Mirte_Frame
 
-TODO
+TODO readme, dxfs should be in release!
+
+TODO: make release
