@@ -15,6 +15,11 @@ try:
 except ValueError:
     print("FreeCAD library not found.")
     exit()
+def makeRotatingPlacement(axis_origin, axis_dir, angle):
+    import FreeCAD as App
+    OZ = App.Vector(0,0,1)
+    local_cs = App.Placement(axis_origin, App.Rotation(OZ, axis_dir))
+    return local_cs.multiply(   App.Placement( App.Vector(), App.Rotation(angle,0,0) ).multiply( local_cs.inverse() )   )
 
 def getFilePath(body, name, build_path, type):
     type_path = (build_path / type)
@@ -67,14 +72,16 @@ def exportSTEP(body, name, build_path):
     
     
 def exportDXF(body, name, build_path):   
-    sv0 = Draft.make_shape2dview(body, FreeCAD.Vector(0, -1, 0))
+    # sv0 = Draft.make_shape2dview(body, FreeCAD.Vector(0, -1, 0))
     FreeCAD.getDocument(name).recompute()    
     pathOut = getFilePath(body, name, build_path, "dxf")
     
     # Code as shown in FreeCAD console when generating dxf file:
     __objs__ = []
-    __objs__.append(FreeCAD.getDocument(name).getObject(sv0.Name))
-
+    __objs__.append(FreeCAD.getDocument(name).getObject(body.Name))
+    spin = makeRotatingPlacement(FreeCAD.Vector(0,0,1),FreeCAD.Vector(1,0,0), -90)
+    __objs__[0].Placement = spin.multiply(__objs__[0].Placement)
+    FreeCAD.getDocument(name).recompute()
     if hasattr(importDXF, "exportOptions"):
         options = importDXF.exportOptions(pathOut)
         importDXF.export(__objs__, pathOut, options)
@@ -91,6 +98,24 @@ def renderFile(freecadFile):
         # Fix for motor clamp lock, the chamfer one is the final one
         if obj.isDerivedFrom("PartDesign::Body") or obj.isDerivedFrom("Part::Chamfer"):
             bodies.append(obj)
+    
+    # Find all ShapeString objects and change the font file to an absolute path
+    for obj in doc.Objects:
+        print(obj.Name, obj.TypeId, obj.isDerivedFrom("Part::Part2DObjectPython"))
+        if obj.isDerivedFrom("Part::Part2DObjectPython"):
+            font_path = obj.FontFile
+            # get filename from font_path
+            font_filename = Path(font_path).name
+            abs_font_path = (freecadFile.parent / "../fonts" / font_filename).resolve() 
+            # test if file exists
+            if not abs_font_path.exists():
+                print(f"Font file {abs_font_path} does not exist!")
+                # print string to help debugging
+                print(f"Original font path: {font_path}")
+                print(f"Keys: {list(doc.getObject(obj.Name).PropertiesList)}")
+            obj.FontFile = str(abs_font_path)
+            print(f"Set font path for {obj.Name} to {obj.FontFile}")
+    FreeCAD.getDocument(freecadFile.stem).recompute()
     for body in bodies:
         build_dir = (freecadFile.parent / "../build").resolve()
         if not build_dir.exists():
