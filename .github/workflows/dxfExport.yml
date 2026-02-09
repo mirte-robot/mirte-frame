@@ -6,25 +6,31 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: amrit3701/freecad-cli:1.0.2-amd64-ubuntu22.04-py3.11-qt5
 
     steps:
+      - name: install nodejs
+        run: |
+          apt update
+          apt install curl -y
+          curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
+          apt-get install -y nodejs
+          # apt install xvfb -y
+
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: install freecad
-        run: |
-          sudo add-apt-repository ppa:freecad-maintainers/freecad-stable -y
-          sudo apt-get update
-          sudo apt-get install freecad -y
     
       - name: Run FreeCAD
         run: |
             mkdir /tmp/mirte-frame
             cp -r ./freecadFiles /tmp/mirte-frame
+            cp -r ./fonts /tmp/mirte-frame
             cp -r ./scripts /tmp/mirte-frame
             cp ./bill_of_materials.md /tmp/mirte-frame
             cd /tmp/mirte-frame/scripts
-            echo "exec(open(\"/tmp/mirte-frame/scripts/generate.py\").read())" | freecadcmd
+            echo "exec(open(\"/tmp/mirte-frame/scripts/generate.py\").read())" | FreeCADCmd
       - name: Upload DXF
         uses: actions/upload-artifact@v4
         with:
