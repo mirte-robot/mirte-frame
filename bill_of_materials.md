@@ -9,18 +9,24 @@ MIRTE Light & Basic needs:
 - 1x layer_bottom(-minimal)*
 - 2x motor_clamp_plate
 - 2x motor_clamp_wedge
-- 2x spacer
+- 2x spacer_motor-clamp
 
-MIRTE Pioneer needs the above and:
-==================================
+MIRTE Pioneer needs:
+====================
 
+- 1x layer_bottom(-minimal)*
+- 2x motor_clamp_plate
+- 2x motor_clamp_wedge
 - 1x layer_top(-minimal)*
 - 1x motor_clamp_lock
-- 2x spacer
+- 2x spacer_interlayer
 - 5x wedge
 
 * Files post-fixed with "minimal" means it has the minimal
-number of lines for lasercutting.
+number of lines for lasercutting. With the minimal version no text
+will be shown on the model, and the lego/m3 holes are also
+removed. This makes for a cleaner and faster setup if these a
+not needed.
 
 Attachments:
 ============

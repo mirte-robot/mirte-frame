@@ -21,6 +21,9 @@ jobs:
             cp ./bill_of_materials.md /tmp/mirte-frame
             cd /tmp/mirte-frame/scripts
             FreeCADCmd /tmp/mirte-frame/scripts/generate.py
+            cp /tmp/mirte-frame/bill_of_materials.md /tmp/mirte-frame/build/dxf
+            cp /tmp/mirte-frame/bill_of_materials.md /tmp/mirte-frame/build/stl
+            cp /tmp/mirte-frame/bill_of_materials.md /tmp/mirte-frame/build/step
       - name: Upload DXF
         uses: actions/upload-artifact@v7
         with:
